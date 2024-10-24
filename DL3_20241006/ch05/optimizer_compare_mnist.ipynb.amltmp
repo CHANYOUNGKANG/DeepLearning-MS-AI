@@ -1,0 +1,131 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "import os, sys\n",
+        "print(os.getcwd())\n",
+        "current_dir = os.path.dirname(os.getcwd())\n",
+        "print(current_dir)\n",
+        "os.chdir(current_dir)\n",
+        "import os, sys\n",
+        "print(os.getcwd())  # 현재 작업 디렉토리 출력\n",
+        "current_dir = os.path.dirname(os.path.abspath(\"/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/common\"))  # 현재 파일의 디렉토리 경로 가져오기\n",
+        "print(current_dir)  # 디렉토리 경로 출력\n",
+        "os.chdir(current_dir)  # 현재 디렉토리로 변경\n",
+        "\n",
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "from dataset.mnist import load_mnist  # MNIST 데이터셋 로드\n",
+        "from common.util import smooth_curve  # 그래프를 매끄럽게 만드는 함수\n",
+        "from common.multi_layer_net import MultiLayerNet  # 신경망 클래스\n",
+        "from common.optimizer import *  # Optimizer 관련 모듈 import\n",
+        "\n",
+        "# 0. MNIST 데이터 읽기\n",
+        "(x_train, t_train), (x_test, t_test) = load_mnist(normalize=True)  # MNIST 데이터셋 로드\n",
+        "train_size = x_train.shape[0]\n",
+        "batch_size = 128  # 배치 사이즈 설정\n",
+        "max_iterations = 2000  # 최대 반복 횟수\n",
+        "\n",
+        "# 1. Optimizer 설정\n",
+        "optimizers = {}\n",
+        "optimizers['SGD'] = SGD()\n",
+        "optimizers['Momentum'] = Momentum()\n",
+        "optimizers['AdaGrad'] = AdaGrad()\n",
+        "optimizers['Adam'] = Adam()\n",
+        "\n",
+        "networks = {}\n",
+        "train_loss = {}\n",
+        "\n",
+        "# 각 Optimizer 별로 MultiLayerNet 신경망 생성\n",
+        "for key in optimizers.keys():\n",
+        "    networks[key] = MultiLayerNet(\n",
+        "        input_size=784, hidden_size_list=[100, 100, 100, 100], output_size=10)\n",
+        "    train_loss[key] = []\n",
+        "\n",
+        "# 2. 훈련 시작\n",
+        "for i in range(max_iterations):\n",
+        "    batch_mask = np.random.choice(train_size, batch_size)  # 무작위로 배치 추출\n",
+        "    x_batch = x_train[batch_mask]  # 배치 입력 데이터\n",
+        "    t_batch = t_train[batch_mask]  # 배치 타겟 데이터\n",
+        "\n",
+        "    for key in optimizers.keys():\n",
+        "        # 기울기 계산\n",
+        "        grads = networks[key].gradient(x_batch, t_batch)\n",
+        "        # Optimizer 별로 파라미터 업데이트\n",
+        "        optimizers[key].update(networks[key].params, grads)\n",
+        "\n",
+        "        # 손실 계산 및 기록\n",
+        "        loss = networks[key].loss(x_batch, t_batch)\n",
+        "        train_loss[key].append(loss)\n",
+        "\n",
+        "    if i % 100 == 0:  # 100번마다 출력\n",
+        "        print(\"========== iteration: \" + str(i) + \" ==========\")\n",
+        "        for key in optimizers.keys():\n",
+        "            loss = networks[key].loss(x_batch, t_batch)\n",
+        "            print(key + \": \" + str(loss))\n",
+        "\n",
+        "# 3. 그래프 그리기\n",
+        "markers = {\"SGD\": \"o\", \"Momentum\": \"x\", \"AdaGrad\": \"s\", \"Adam\": \"D\"}\n",
+        "x = np.arange(max_iterations)  # x 축은 반복 횟수\n",
+        "\n",
+        "# 손실 곡선 그리기\n",
+        "for key in optimizers.keys():\n",
+        "    plt.plot(x, smooth_curve(train_loss[key]), marker=markers[key], markevery=100, label=key)\n",
+        "\n",
+        "plt.xlabel(\"iterations\")\n",
+        "plt.ylabel(\"loss\")\n",
+        "plt.ylim(0, 1)\n",
+        "plt.legend()\n",
+        "plt.show()\n"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/ch05\n/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006\n/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006\n/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006\n========== iteration: 0 ==========\nSGD: 2.357381976070304\nMomentum: 2.3314077979859777\nAdaGrad: 2.0885713004532334\nAdam: 2.249002435690093\n========== iteration: 100 ==========\nSGD: 1.1758749461083715\nMomentum: 0.3511079879677445\nAdaGrad: 0.14099164971151526\nAdam: 0.29761718527367564\n========== iteration: 200 ==========\nSGD: 0.6301171953465539\nMomentum: 0.23944302859525207\nAdaGrad: 0.09614982436668856\nAdam: 0.22234774779777766\n========== iteration: 300 ==========\nSGD: 0.4844522901039819\nMomentum: 0.2627419589921932\nAdaGrad: 0.1416686802353792\nAdam: 0.2771635263903726\n========== iteration: 400 ==========\nSGD: 0.36904439627160557\nMomentum: 0.13260028885099873\nAdaGrad: 0.061279440893297524\nAdam: 0.10188535361930687\n========== iteration: 500 ==========\nSGD: 0.3720916301383005\nMomentum: 0.1613155402632298\nAdaGrad: 0.06362518494818613\nAdam: 0.10251480427898199\n========== iteration: 600 ==========\nSGD: 0.2364412303843088\nMomentum: 0.09739979199397136\nAdaGrad: 0.059871458251248406\nAdam: 0.10656796722515242\n========== iteration: 700 ==========\nSGD: 0.3276312124031665\nMomentum: 0.13751791041422892\nAdaGrad: 0.07400338180774649\nAdam: 0.07660849484403258\n========== iteration: 800 ==========\nSGD: 0.32298412354186123\nMomentum: 0.14156717491140502\nAdaGrad: 0.06673085057608287\nAdam: 0.10780629389726817\n========== iteration: 900 ==========\nSGD: 0.2488181148379964\nMomentum: 0.10514970818528944\nAdaGrad: 0.06105812492966678\nAdam: 0.11173856373448193\n========== iteration: 1000 ==========\nSGD: 0.25234305142338537\nMomentum: 0.1476951203512739\nAdaGrad: 0.08130955962839871\nAdam: 0.11935935411056221\n========== iteration: 1100 ==========\nSGD: 0.3405156692838051\nMomentum: 0.11102231139605678\nAdaGrad: 0.03995339960964216\nAdam: 0.08284361383671368\n========== iteration: 1200 ==========\nSGD: 0.23018093520274968\nMomentum: 0.06784726200202329\nAdaGrad: 0.01833624136149662\nAdam: 0.037733099841895254\n========== iteration: 1300 ==========\nSGD: 0.27178539344083213\nMomentum: 0.1314743479802905\nAdaGrad: 0.07970184217215971\nAdam: 0.06425136721248849\n========== iteration: 1400 ==========\nSGD: 0.22647786076242107\nMomentum: 0.06271629506635443\nAdaGrad: 0.03968886942706671\nAdam: 0.0558730700449159\n========== iteration: 1500 ==========\nSGD: 0.21276878937414379\nMomentum: 0.0543641409398719\nAdaGrad: 0.024237037902337624\nAdam: 0.047307030969895594\n========== iteration: 1600 ==========\nSGD: 0.17492930526085465\nMomentum: 0.05432845041830676\nAdaGrad: 0.03729988614421082\nAdam: 0.08089211290376076\n========== iteration: 1700 ==========\nSGD: 0.24085549815603802\nMomentum: 0.06456264890236406\nAdaGrad: 0.029883115982558356\nAdam: 0.060050738433405595\n========== iteration: 1800 ==========\nSGD: 0.08485061605000857\nMomentum: 0.04036665310968141\nAdaGrad: 0.04094449071874663\nAdam: 0.03723549143671053\n"
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "gather": {
+          "logged": 1729746502939
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python310-sdkv2",
+      "language": "python",
+      "display_name": "Python 3.10 - SDK v2"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.10.14",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "kernel_info": {
+      "name": "python310-sdkv2"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    },
+    "microsoft": {
+      "host": {
+        "AzureML": {
+          "notebookHasBeenCompleted": true
+        }
+      }
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}

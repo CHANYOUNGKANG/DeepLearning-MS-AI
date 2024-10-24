@@ -1,0 +1,87 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "import os, sys\n",
+        "print(os.getcwd())\n",
+        "current_dir = os.path.dirname(os.getcwd())\n",
+        "print(current_dir)\n",
+        "os.chdir(current_dir)\n",
+        "\n",
+        "# coding: utf-8\n",
+        "from ch04.layer_naive import *  # Add/MulLayer를 import 함\n",
+        "\n",
+        "apple = 100  # 사과 가격\n",
+        "apple_num = 2  # 사과 수량\n",
+        "tax = 1.1  # 세율\n",
+        "\n",
+        "# 계층 생성\n",
+        "mul_apple_layer = MulLayer()  # 곱셈 계층 (사과 가격 * 수량)\n",
+        "mul_tax_layer = MulLayer()  # 곱셈 계층 (사과 가격 * 세율)\n",
+        "\n",
+        "# forward\n",
+        "apple_price = mul_apple_layer.forward(apple, apple_num)  # 사과 가격 * 수량 계산\n",
+        "price = mul_tax_layer.forward(apple_price, tax)  # 가격에 세율 적용\n",
+        "\n",
+        "# backward\n",
+        "dprice = 1  # 전체 가격이 1 증가했을 때\n",
+        "dapple_price, dtax = mul_tax_layer.backward(dprice)  # 세율에 대한 역전파\n",
+        "dapple, dapple_num = mul_apple_layer.backward(dapple_price)  # 수량/가격에 대한 역전파\n",
+        "\n",
+        "print(\"price:\", int(price))  # 전체 가격 출력\n",
+        "print(\"dApple:\", dapple)  # 사과 가격이 1 증가했을 때 가격에 미치는 영향\n",
+        "print(\"dApple_num:\", int(dapple_num))  # 사과 수량에 미치는 영향\n",
+        "print(\"dTax:\", dtax)  # 세율이 가격에 미치는 영향\n",
+        "\n"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/ch04\n/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006\nprice: 220\ndApple: 2.2\ndApple_num: 110\ndTax: 200\n"
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "gather": {
+          "logged": 1729733800640
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernel_info": {
+      "name": "python310-sdkv2"
+    },
+    "kernelspec": {
+      "name": "python310-sdkv2",
+      "language": "python",
+      "display_name": "Python 3.10 - SDK v2"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.10.14",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "microsoft": {
+      "host": {
+        "AzureML": {
+          "notebookHasBeenCompleted": true
+        }
+      }
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}
