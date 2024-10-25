@@ -1,0 +1,132 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "import os, sys\n",
+        "print(os.getcwd())  # 현재 작업 디렉토리 출력\n",
+        "current_dir = os.path.dirname(os.path.abspath(\"/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/common\"))  # 현재 파일의 디렉토리 경로 가져오기\n",
+        "print(current_dir)  # 디렉토리 경로 출력\n",
+        "os.chdir(current_dir)  # 현재 디렉토리로 변경\n",
+        "\n",
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "from dataset.mnist import load_mnist\n",
+        "from common.multi_layer_net import MultilayerNet\n",
+        "from common.optimizer import SGD\n",
+        "\n",
+        "# MNIST 데이터 읽기 (작은 데이터셋을 사용하기 위해 300개 데이터만 사용)\n",
+        "(x_train, t_train), (x_test, t_test) = load_mnist(normalize=True)\n",
+        "x_train = x_train[:300]\n",
+        "t_train = t_train[:300]\n",
+        "\n",
+        "# weight decay(가중치 감쇠) 설정 ===================\n",
+        "# weight_decay_lambda = 0이면 weight decay를 사용하지 않을 경우\n",
+        "weight_decay_lambda = 0.1\n",
+        "\n",
+        "network = MultilayerNet(input_size=784, hidden_size_list=[100, 100, 100, 100, 100], output_size=10,\n",
+        "                        weight_decay_lambda=weight_decay_lambda)  # 가중치에 페널티를 부여하는 옵션\n",
+        "optimizer = SGD(lr=0.01)  # 학습률이 0.01인 SGD로 매개변수 갱신\n",
+        "\n",
+        "max_epochs = 201\n",
+        "train_size = x_train.shape[0]\n",
+        "batch_size = 100\n",
+        "iter_per_epoch = max(train_size / batch_size, 1)\n",
+        "epoch_cnt = 0\n",
+        "\n",
+        "train_loss_list = []\n",
+        "train_acc_list = []\n",
+        "test_acc_list = []\n",
+        "\n",
+        "for i in range(1000000000):\n",
+        "    batch_mask = np.random.choice(train_size, batch_size)\n",
+        "    x_batch = x_train[batch_mask]\n",
+        "    t_batch = t_train[batch_mask]\n",
+        "\n",
+        "    grads = network.gradient(x_batch, t_batch)  # 기울기를 구하고 가중치 업데이트\n",
+        "    optimizer.update(network.params, grads)\n",
+        "\n",
+        "    if i % iter_per_epoch == 0:\n",
+        "        train_acc = network.accuracy(x_train, t_train)  # 1주기당 훈련 정확도 계산\n",
+        "        test_acc = network.accuracy(x_test, t_test)  # 1주기당 테스트 정확도 계산\n",
+        "        train_acc_list.append(train_acc)\n",
+        "        test_acc_list.append(test_acc)\n",
+        "\n",
+        "        print(\"epoch:\" + str(epoch_cnt) + \", train acc:\" + str(train_acc) + \", test acc:\" + str(test_acc))\n",
+        "\n",
+        "        epoch_cnt += 1\n",
+        "        if epoch_cnt >= max_epochs:\n",
+        "            break\n",
+        "\n",
+        "# 그래프 그리기 ==================\n",
+        "markers = {'train': 'o', 'test': 's'}\n",
+        "x = np.arange(max_epochs)\n",
+        "plt.plot(x, train_acc_list, marker='o', label='train', markevery=10)\n",
+        "plt.plot(x, test_acc_list, marker='s', label='test', markevery=10)\n",
+        "plt.xlabel(\"epochs\")\n",
+        "plt.ylabel(\"accuracy\")\n",
+        "plt.ylim(0, 1.0)\n",
+        "plt.legend(loc='lower right')\n",
+        "plt.show()\n"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006\n/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006\n"
+        },
+        {
+          "output_type": "error",
+          "ename": "ImportError",
+          "evalue": "cannot import name 'MultilayerNet' from 'common.multi_layer_net' (/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/common/multi_layer_net.py)",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mImportError\u001b[0m                               Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[4], line 10\u001b[0m\n\u001b[1;32m      8\u001b[0m \u001b[38;5;28;01mimport\u001b[39;00m \u001b[38;5;21;01mmatplotlib\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mpyplot\u001b[39;00m \u001b[38;5;28;01mas\u001b[39;00m \u001b[38;5;21;01mplt\u001b[39;00m\n\u001b[1;32m      9\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mdataset\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mmnist\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m load_mnist\n\u001b[0;32m---> 10\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mcommon\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mmulti_layer_net\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m MultilayerNet\n\u001b[1;32m     11\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mcommon\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01moptimizer\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m SGD\n\u001b[1;32m     13\u001b[0m \u001b[38;5;66;03m# MNIST 데이터 읽기 (작은 데이터셋을 사용하기 위해 300개 데이터만 사용)\u001b[39;00m\n",
+            "\u001b[0;31mImportError\u001b[0m: cannot import name 'MultilayerNet' from 'common.multi_layer_net' (/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/common/multi_layer_net.py)"
+          ]
+        }
+      ],
+      "execution_count": 4,
+      "metadata": {
+        "gather": {
+          "logged": 1729754484024
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python310-sdkv2",
+      "language": "python",
+      "display_name": "Python 3.10 - SDK v2"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.10.14",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "kernel_info": {
+      "name": "python310-sdkv2"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    },
+    "microsoft": {
+      "host": {
+        "AzureML": {
+          "notebookHasBeenCompleted": true
+        }
+      }
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}

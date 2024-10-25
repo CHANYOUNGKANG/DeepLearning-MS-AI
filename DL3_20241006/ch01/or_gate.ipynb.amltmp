@@ -1,0 +1,78 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "# coding: utf-8\n",
+        "# OR Gate 구현 예제\n",
+        "import numpy as np\n",
+        "\n",
+        "# OR 게이트 함수 정의\n",
+        "def OR(x1, x2):\n",
+        "    x = np.array([x1, x2])  # 입력 값 설정\n",
+        "    w = np.array([0.5, 0.5])  # 가중치 설정\n",
+        "    b = -0.2  # 편향 값 설정\n",
+        "    tmp = np.sum(w*x) + b  # 가중치와 입력 값의 곱에 편향을 더한 결과 계산\n",
+        "    \n",
+        "    # OR 게이트의 출력 결정\n",
+        "    if tmp <= 0:\n",
+        "        return 0  # 경계값 이하이면 False 반환\n",
+        "    else:\n",
+        "        return 1  # 경계값 이상이면 True 반환\n",
+        "\n",
+        "# 테스트용 코드\n",
+        "if __name__ == '__main__':\n",
+        "    for xs in [(0, 0), (1, 0), (0, 1), (1, 1)]:\n",
+        "        y = OR(xs[0], xs[1])\n",
+        "        print(str(xs) + \" --> \" + str(y))\n",
+        "\n",
+        "# 설명\n",
+        "# 1. x 배열은 두 입력 값을 담고 있으며, w는 각 입력에 적용될 가중치를 의미합니다.\n",
+        "# 2. tmp는 가중치와 입력 값의 곱에 편향(b)을 더한 값으로, 이 값이 0 이하이면 False(0), \n",
+        "#    그 이상이면 True(1)을 반환합니다.\n",
+        "# 3. OR 게이트는 두 값 중 하나라도 1이면 1(True)을 반환하는 논리 게이트입니다."
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "gather": {
+          "logged": 1720236769938
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python310-sdkv2",
+      "language": "python",
+      "display_name": "Python 3.10 - SDK v2"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.10.14",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "kernel_info": {
+      "name": "python310-sdkv2"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    },
+    "microsoft": {
+      "host": {
+        "AzureML": {
+          "notebookHasBeenCompleted": true
+        }
+      }
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}
