@@ -1,0 +1,114 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "import os, sys\n",
+        "print(os.getcwd())  # 현재 작업 디렉토리 출력\n",
+        "current_dir = os.path.dirname(os.getcwd())  # 현재 디렉토리 경로 가져오기\n",
+        "print(current_dir)\n",
+        "os.chdir(current_dir)  # 현재 디렉토리로 변경\n",
+        "\n",
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "from dataset.mnist import load_mnist  # MNIST 데이터셋 로드\n",
+        "from common.multi_layer_net_extend import MultilayerNetExtend  # 확장된 다층 신경망\n",
+        "from common.trainer import Trainer  # 학습을 관리할 Trainer 클래스\n",
+        "\n",
+        "# MNIST 데이터셋 불러오기\n",
+        "(x_train, t_train), (x_test, t_test) = load_mnist(normalize=True)\n",
+        "\n",
+        "# 오버피팅을 방지하기 위해 학습 데이터 일부만 사용\n",
+        "x_train = x_train[:300]  # 훈련 데이터의 첫 300개만 사용\n",
+        "t_train = t_train[:300]  # 레이블 데이터의 첫 300개만 사용\n",
+        "\n",
+        "# 드롭아웃 사용 여부와 비율 설정\n",
+        "use_dropout = True  # 드롭아웃을 사용할 경우 True, 사용하지 않을 경우 False\n",
+        "dropout_ratio = 0.2  # 드롭아웃 비율을 20%로 설정\n",
+        "\n",
+        "# 신경망 생성: Dropout 옵션 설정\n",
+        "network = MultilayerNetExtend(input_size=784, hidden_size_list=[100, 100, 100, 100, 100, 100], \n",
+        "                              output_size=10, use_dropout=use_dropout, dropout_ratio=dropout_ratio)\n",
+        "\n",
+        "# 학습을 담당할 Trainer 생성\n",
+        "trainer = Trainer(network, x_train, t_train, x_test, t_test, \n",
+        "                  epochs=301, mini_batch_size=100,  # 301 에포크 동안 미니배치 크기 100으로 학습\n",
+        "                  optimizer='sgd', optimizer_param={'lr': 0.01}, verbose=True)  # SGD Optimizer 사용, 학습률 0.01\n",
+        "\n",
+        "trainer.train()  # 학습 시작\n",
+        "\n",
+        "# 학습된 결과를 저장\n",
+        "train_acc_list, test_acc_list = trainer.train_acc_list, trainer.test_acc_list  # 학습 정확도와 테스트 정확도 리스트\n",
+        "\n",
+        "# 그래프 그리기 =================\n",
+        "markers = {'train': 'o', 'test': 's'}\n",
+        "x = np.arange(len(train_acc_list))  # 에포크 수만큼의 x축 데이터 생성\n",
+        "plt.plot(x, train_acc_list, marker='o', label='train', markevery=10)  # 학습 데이터의 정확도를 그래프로 표시\n",
+        "plt.plot(x, test_acc_list, marker='s', label='test', markevery=10)  # 테스트 데이터의 정확도를 그래프로 표시\n",
+        "plt.xlabel(\"epochs\")  # x축 레이블\n",
+        "plt.ylabel(\"accuracy\")  # y축 레이블\n",
+        "plt.ylim(0, 1.0)  # y축 범위 설정\n",
+        "plt.legend(loc='lower right')  # 범례 설정\n",
+        "plt.show()  # 그래프 출력\n"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/ch05\n/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006\n"
+        },
+        {
+          "output_type": "error",
+          "ename": "ImportError",
+          "evalue": "cannot import name 'MultilayerNetExtend' from 'common.multi_layer_net_extend' (/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/common/multi_layer_net_extend.py)",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mImportError\u001b[0m                               Traceback (most recent call last)",
+            "Cell \u001b[0;32mIn[1], line 10\u001b[0m\n\u001b[1;32m      8\u001b[0m \u001b[38;5;28;01mimport\u001b[39;00m \u001b[38;5;21;01mmatplotlib\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mpyplot\u001b[39;00m \u001b[38;5;28;01mas\u001b[39;00m \u001b[38;5;21;01mplt\u001b[39;00m\n\u001b[1;32m      9\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mdataset\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mmnist\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m load_mnist  \u001b[38;5;66;03m# MNIST 데이터셋 로드\u001b[39;00m\n\u001b[0;32m---> 10\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mcommon\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mmulti_layer_net_extend\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m MultilayerNetExtend  \u001b[38;5;66;03m# 확장된 다층 신경망\u001b[39;00m\n\u001b[1;32m     11\u001b[0m \u001b[38;5;28;01mfrom\u001b[39;00m \u001b[38;5;21;01mcommon\u001b[39;00m\u001b[38;5;21;01m.\u001b[39;00m\u001b[38;5;21;01mtrainer\u001b[39;00m \u001b[38;5;28;01mimport\u001b[39;00m Trainer  \u001b[38;5;66;03m# 학습을 관리할 Trainer 클래스\u001b[39;00m\n\u001b[1;32m     13\u001b[0m \u001b[38;5;66;03m# MNIST 데이터셋 불러오기\u001b[39;00m\n",
+            "\u001b[0;31mImportError\u001b[0m: cannot import name 'MultilayerNetExtend' from 'common.multi_layer_net_extend' (/mnt/batch/tasks/shared/LS_root/mounts/clusters/b001-dl/code/Users/5b001/DL3_20241006/common/multi_layer_net_extend.py)"
+          ]
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "gather": {
+          "logged": 1729755704183
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python310-sdkv2",
+      "language": "python",
+      "display_name": "Python 3.10 - SDK v2"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.10.14",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "kernel_info": {
+      "name": "python310-sdkv2"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    },
+    "microsoft": {
+      "host": {
+        "AzureML": {
+          "notebookHasBeenCompleted": true
+        }
+      }
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}
